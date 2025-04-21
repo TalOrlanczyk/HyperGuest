@@ -8,6 +8,7 @@ interface InProgressMessage {
 
 export class Queue {
     private messages: Message[]
+    // key -> processing info - help us understand if the message is being processed by the current worker
     private processing: Map<string, InProgressMessage>
 
     constructor() {
@@ -27,7 +28,7 @@ export class Queue {
      */
     Dequeue = (workerId: number): Message | undefined => {
         if (this.messages.length === 0) {
-            return undefined;
+            return undefined; // No messages to process
         }
 
         const messageIndex = this.messages.findIndex(
@@ -35,7 +36,7 @@ export class Queue {
         );
 
         if (messageIndex === -1) {
-            return undefined;
+            return undefined; // keys are locked
         }
 
         const [message] = this.messages.splice(messageIndex, 1);
@@ -58,10 +59,10 @@ export class Queue {
         for (const [key, info] of this.processing.entries()) {
             if (info.messageId === messageId) {
                 if (info.workerId !== workerId) {
-                    return;
+                    return; // Wrong worker trying to confirm
                 }
                 this.processing.delete(key);
-                return;
+                return; // Message confirmed
             }
         }
     }
