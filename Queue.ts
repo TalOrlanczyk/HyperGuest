@@ -8,7 +8,7 @@ interface InProgressMessage {
 
 export class Queue {
     private messages: Message[]
-    private processing: Map<string, InProgressMessage> // key -> processing info
+    private processing: Map<string, InProgressMessage>
 
     constructor() {
         this.messages = []
@@ -35,7 +35,7 @@ export class Queue {
         );
 
         if (messageIndex === -1) {
-            return undefined; // All messages are being processed
+            return undefined;
         }
 
         const [message] = this.messages.splice(messageIndex, 1);
@@ -58,7 +58,7 @@ export class Queue {
         for (const [key, info] of this.processing.entries()) {
             if (info.messageId === messageId) {
                 if (info.workerId !== workerId) {
-                    return; // Wrong worker trying to confirm
+                    return;
                 }
                 this.processing.delete(key);
                 return;
